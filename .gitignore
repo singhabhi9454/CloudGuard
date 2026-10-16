@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+node_modules/
+frontend/dist/
+cloudguard.db
+*.db
+.DS_Store
+.aws/
+
