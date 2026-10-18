@@ -350,3 +350,82 @@ def get_scan_schedule():
 def update_scan_schedule(req: ScheduleRequest):
     """Updates scan schedule (DAILY, WEEKLY, MANUAL)."""
     return scheduler.set_schedule(mode=req.mode, enabled=req.enabled)
+
+
+# -------------------------------------------------------------
+# Machine Learning Risk Prediction Endpoints
+# -------------------------------------------------------------
+@app.post("/predict-risk")
+def predict_risk_endpoint(payload: Dict[str, Any]):
+    """
+    Predicts AWS configuration risk category (LOW, MEDIUM, HIGH)
+    using the trained Random Forest machine learning model.
+    """
+    try:
+        from ml_model.predictor import predict_risk
+        result = predict_risk(payload)
+        return result
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Prediction failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Risk prediction failed: {str(e)}",
+        )
+
+
+@app.post("/predict-scan-risk")
+def predict_scan_risk_endpoint(scan_id: Optional[str] = None):
+    """
+    Runs ML risk prediction on findings from a specific scan run or the latest audit.
+    Enables direct comparison between deterministic rule-based evaluation and ML inference.
+    """
+    try:
+        latest = get_latest_scan()
+        findings = []
+        target_scan_id = scan_id or (latest["scan_id"] if latest else "current")
+
+        if scan_id:
+            scan = get_scan_by_id(scan_id)
+            if scan:
+                findings = scan.get("findings", [])
+        elif latest:
+            findings = get_all_findings(scan_id=latest["scan_id"])
+        else:
+            findings = get_all_findings()
+
+        from ml_model.predictor import predict_risk
+        from scanner.security_score import calculate_security_score
+
+        ml_result = predict_risk(findings)
+        rule_score = calculate_security_score(findings)
+
+        return {
+            "ml_prediction": ml_result,
+            "rule_based_evaluation": rule_score,
+            "findings_count": len(findings),
+            "scan_id": target_scan_id,
+        }
+    except Exception as e:
+        logger.error(f"Scan risk prediction failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Scan risk prediction failed: {str(e)}",
+        )
+
+
+@app.get("/ml-model/info")
+def get_ml_model_info():
+    """Returns metadata, model version, and evaluation metrics for the active ML model."""
+    try:
+        from ml_model.predictor import get_model_info
+        return get_model_info()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Could not load ML model info: {str(e)}",
+        )

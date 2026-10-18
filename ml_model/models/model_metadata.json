@@ -1,0 +1,108 @@
+{
+  "model_version": "1.0.0",
+  "model_type": "RandomForestClassifier",
+  "trained_at": "2026-10-17 15:54:35 UTC",
+  "random_seed": 42,
+  "features": [
+    "ssh_port_22_open",
+    "rdp_port_3389_open",
+    "all_traffic_open",
+    "sensitive_ports_open",
+    "s3_public_access_block_disabled",
+    "s3_bucket_policy_public",
+    "s3_encryption_disabled",
+    "iam_console_without_mfa",
+    "iam_access_key_age_over_90d",
+    "iam_admin_policy_attached",
+    "rds_publicly_accessible",
+    "rds_encryption_disabled",
+    "rds_backup_disabled"
+  ],
+  "classes": [
+    "HIGH",
+    "LOW",
+    "MEDIUM"
+  ],
+  "metrics": {
+    "accuracy": 0.9309,
+    "macro_precision": 0.9377,
+    "macro_recall": 0.9303,
+    "macro_f1": 0.9321,
+    "weighted_f1": 0.9307,
+    "confusion_matrix": [
+      [
+        49,
+        0,
+        6
+      ],
+      [
+        0,
+        63,
+        0
+      ],
+      [
+        0,
+        7,
+        63
+      ]
+    ],
+    "classification_report": {
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 0.8909090909090909,
+        "f1-score": 0.9423076923076923,
+        "support": 55.0
+      },
+      "LOW": {
+        "precision": 0.9,
+        "recall": 1.0,
+        "f1-score": 0.9473684210526315,
+        "support": 63.0
+      },
+      "MEDIUM": {
+        "precision": 0.9130434782608695,
+        "recall": 0.9,
+        "f1-score": 0.9064748201438849,
+        "support": 70.0
+      },
+      "accuracy": 0.9308510638297872,
+      "macro avg": {
+        "precision": 0.9376811594202898,
+        "recall": 0.9303030303030303,
+        "f1-score": 0.9320503111680697,
+        "support": 188.0
+      },
+      "weighted avg": {
+        "precision": 0.9341119333950046,
+        "recall": 0.9308510638297872,
+        "f1-score": 0.9306615479431425,
+        "support": 188.0
+      }
+    }
+  },
+  "feature_importances": {
+    "all_traffic_open": 0.15,
+    "s3_bucket_policy_public": 0.146,
+    "rds_publicly_accessible": 0.1205,
+    "iam_access_key_age_over_90d": 0.0898,
+    "sensitive_ports_open": 0.0835,
+    "rds_backup_disabled": 0.0824,
+    "rdp_port_3389_open": 0.0745,
+    "ssh_port_22_open": 0.0596,
+    "s3_encryption_disabled": 0.0489,
+    "rds_encryption_disabled": 0.0482,
+    "iam_admin_policy_attached": 0.0463,
+    "iam_console_without_mfa": 0.0268,
+    "s3_public_access_block_disabled": 0.0234
+  },
+  "dataset_info": {
+    "total_samples": 750,
+    "train_samples": 562,
+    "test_samples": 188,
+    "class_distribution": {
+      "MEDIUM": 279,
+      "LOW": 250,
+      "HIGH": 221
+    }
+  }
+}
